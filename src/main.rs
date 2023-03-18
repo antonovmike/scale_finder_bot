@@ -63,13 +63,14 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         );
         
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        let text = "Choose a note";
+        let text = "Root note";
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
         
         api.execute(button_message).await?;
     } else if message_text == "C" || message_text == "D" || message_text == "E" || message_text == "F"
     || message_text == "G" || message_text == "A" || message_text == "H" {
+        let file = File::create("file.txt");
         let to_file = format!("{} ", message_text);
         text_file.write_all(to_file.as_bytes());
         
@@ -80,7 +81,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             ReplyKeyboardMarkup::default(), vec![button_flat, button_clean, button_sharp]
         );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        let text = "Choose a sign";
+        let text = "Accidental";
         
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
@@ -113,7 +114,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             vec![]
         );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        let text = "Choose a scale";
+        let text = "Mode";
         
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
@@ -124,9 +125,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         message_text == "Mixolydian" || message_text == "Minor" || message_text == "Locrian" {
         text_file.write_all(message_text.as_bytes());
         
-        let key_row = ReplyKeyboardMarkup::row(
-            ReplyKeyboardMarkup::default(), vec![]
-        );
+        let key_row = ReplyKeyboardMarkup::row(ReplyKeyboardMarkup::default(), vec![]);
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_row, true);
         let contents = fs::read_to_string("file.txt").expect("Should have been able to read the file");
 
@@ -134,7 +133,10 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
         let note = contents[..1].chars().nth(0).unwrap();
         let sign = contents[2..3].chars().nth(0).unwrap();
         let scale = &contents[3..];
-        let answer = format!("{:?}", scale_builder(note, sign, scale));
+        let mut answer = format!("{}{} {}:", note, sign, scale);
+        for i in scale_builder(note, sign, scale) {
+            answer = format!("{} {}", answer, i)
+        }
 
         let sendmessage = SendMessage::new(chat_id.clone(), answer);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
@@ -154,8 +156,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             ]
         );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        let text = "Choose a note";
-        let text = format!("{} {} {}", note, sign, scale);
+        let text = "Root note";
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
         
@@ -175,7 +176,7 @@ async fn echo(api: Ref<Api>, chat_id: ChatId, message: Message) -> Result<(), Ex
             ]
         );
         let keyboard = ReplyKeyboardMarkup::resize_keyboard(key_raw, true);
-        let text = "Choose a note";
+        let text = "Root note";
         let sendmessage = SendMessage::new(chat_id, text);
         let button_message = SendMessage::reply_markup(sendmessage, keyboard);
         
